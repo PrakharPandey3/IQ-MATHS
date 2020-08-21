@@ -1,0 +1,110 @@
+let grid;
+let score = 0;
+
+function preload(){
+  pop = loadSound("pop.mp3");
+}
+
+function setup(){
+  createCanvas(400,400)
+  background("black")
+  noLoop();
+  grid = blankGrid();
+  // console.table(grid);
+  addNumber();
+  addNumber();
+  updateCanvas();
+}
+
+function keyPressed(){
+  let flipped = false;
+  let rotated = false;
+  let played = true;
+  if(keyCode === DOWN_ARROW){
+    pop.play();
+  } else if(keyCode === UP_ARROW ){
+    grid = flipGrid(grid);
+    flipped = true;
+    pop.play();
+  } else if(keyCode === RIGHT_ARROW){
+    grid = rotateGrid(grid);
+    rotated = true;
+    pop.play();
+  } else if(keyCode === LEFT_ARROW){
+    grid = rotateGrid(grid);
+    grid = flipGrid(grid);
+    rotated = true;
+    flipped = true;
+    pop.play();
+  } else{
+    played = false;
+  }
+
+    if(played){
+    let past = copyGrid(grid);
+    for(let i = 0;  i < 4; i++){
+      grid[i] = operate(grid[i]);
+    }
+    let changed = compare(past, grid);
+
+  if(flipped){
+    grid = flipGrid(grid);
+  }
+
+  if(rotated){
+    grid = rotateGrid(grid);
+    grid = rotateGrid(grid);
+    grid = rotateGrid(grid);
+  }
+
+    if(changed){
+      addNumber();
+    }
+    updateCanvas();
+
+    let gameover = isGameOver();
+    if(gameover){
+      stroke(255)
+      text("GAME OVER", 200, 200);
+    }
+    let gamewon = isGameWon();
+    if(gamewon){
+      console.log("GAME WON")
+    }
+
+  }
+  
+}
+
+function updateCanvas(){
+  background(255);
+  drawGrid();
+  select('#score').html(score);
+}
+
+function drawGrid(){
+  let w = 100;
+  for(let i = 0; i < 4; i++){
+    for(let j = 0; j < 4; j++){
+      noFill();
+      strokeWeight(2);
+      let val = grid[i][j];
+      let s = val.toString();
+      stroke(0);
+      if(val != 0){
+      fill(colorsSizes[s].color);
+      } else {
+        noFill();
+      }
+      strokeWeight(20)
+      rect(i*w, j*w, w, w, 30);
+      if(val !== 0){
+        textAlign(CENTER, CENTER);
+        noStroke();
+        fill(0);
+        textSize(colorsSizes[s].size);
+        text(val, i * w + w / 2, j * w + w / 2);
+      }
+    }
+  }
+}
